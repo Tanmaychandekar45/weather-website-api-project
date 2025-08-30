@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Quest</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+      transition: background 1s ease;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 25px;
+      padding: 35px;
+      width: 380px;
+      text-align: center;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(14px);
+      animation: fadeIn 1.5s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.8em;
+    }
+
+    input {
+      width: 80%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      outline: none;
+      margin-bottom: 15px;
+      font-size: 1em;
+      background: rgba(255, 255, 255, 0.8);
+      transition: 0.3s;
+    }
+
+    input:focus {
+      background: #fff;
+      box-shadow: 0 0 12px #00b4d8;
+    }
+
+    button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+      color: white;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: bold;
+      letter-spacing: 1px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.08) rotate(-2deg);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .weather-card {
+      margin-top: 20px;
+      padding: 25px;
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      display: none;
+      animation: slideUp 0.8s ease forwards;
+      position: relative;
+    }
+
+    .weather-card img {
+      width: 100px;
+      margin: 10px 0;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .temp {
+      font-size: 2.8em;
+      font-weight: bold;
+      color: #ff6f61;
+      margin: 10px 0;
+    }
+
+    .condition {
+      font-size: 1.4em;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .details {
+      font-size: 1em;
+      color: #555;
+      margin-top: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 8px 15px;
+      border-radius: 20px;
+      background: linear-gradient(45deg, #ffecd2, #fcb69f);
+      color: #333;
+      font-weight: bold;
+      font-size: 0.9em;
+      animation: pulse 2s infinite;
+    }
+
+    /* Animated Weather Effects */
+    .weather-effect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .raindrop, .snowflake, .sunray {
+      position: absolute;
+      opacity: 0.8;
+      animation: fall linear infinite;
+    }
+
+    .raindrop {
+      width: 2px;
+      height: 15px;
+      background: #00f;
+      top: -20px;
+    }
+
+    .snowflake {
+      color: #fff;
+      font-size: 18px;
+      top: -20px;
+      animation: fallSnow linear infinite;
+    }
+
+    .sunray {
+      width: 8px;
+      height: 40px;
+      background: rgba(255, 223, 0, 0.7);
+      border-radius: 50%;
+      top: -40px;
+      animation: fallSun linear infinite;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fall {
+      from { transform: translateY(-20px); }
+      to { transform: translateY(100vh); }
+    }
+
+    @keyframes fallSnow {
+      from { transform: translateY(-20px) rotate(0deg); }
+      to { transform: translateY(100vh) rotate(360deg); }
+    }
+
+    @keyframes fallSun {
+      from { transform: translateY(-40px); opacity: 0.9; }
+      to { transform: translateY(100vh); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-effect" id="weatherEffect"></div>
+  <div class="container">
+    <h2>🎮 Weather Quest</h2>
+    <input type="text" id="locationInput" placeholder="Enter city name...">
+    <br>
+    <button onclick="getWeather()">🔍 Search</button>
+
+    <div class="weather-card" id="weatherCard">
+      <h3 id="city"></h3>
+      <img id="icon" alt="Weather icon">
+      <p class="temp" id="temperature"></p>
+      <p class="condition" id="condition"></p>
+      <p class="details" id="details"></p>
+      <div class="badge" id="badge">🏅 Weather Explorer</div>
+    </div>
+  </div>
+
+  <script>
+    function createEffect(type, count) {
+      const effectContainer = document.getElementById("weatherEffect");
+      effectContainer.innerHTML = ""; // clear old effects
+
+      for (let i = 0; i < count; i++) {
+        let elem = document.createElement("div");
+        if (type === "rain") {
+          elem.classList.add("raindrop");
+          elem.style.left = Math.random() * 100 + "vw";
+          elem.style.animationDuration = (0.5 + Math.random()) + "s";
+        } else if (type === "snow") {
+          elem = document.createElement("div");
+          elem.classList.add("snowflake");
+          elem.innerHTML = "❄";
+          elem.style.left = Math.random() * 100 + "vw";
+          elem.style.fontSize = (12 + Math.random() * 12) + "px";
+          elem.style.animationDuration = (3 + Math.random() * 3) + "s";
+        } else if (type === "sun") {
+          elem.classList.add("sunray");
+          elem.style.left = Math.random() * 100 + "vw";
+          elem.style.animationDuration = (2 + Math.random() * 2) + "s";
+        }
+        effectContainer.appendChild(elem);
+      }
+    }
+
+    async function getWeather() {
+      const location = document.getElementById('locationInput').value;
+      if (!location) {
+        alert("Please enter a location");
+        return;
+      }
+
+      const apiKey = "0c6b2c875a1541a2a83221458253008";
+      const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Location not found");
+        const data = await response.json();
+
+        document.getElementById("city").innerText = `${data.location.name}, ${data.location.country}`;
+        document.getElementById("temperature").innerText = `${data.current.temp_c}°C`;
+        document.getElementById("condition").innerText = data.current.condition.text;
+        document.getElementById("icon").src = "https:" + data.current.condition.icon;
+        document.getElementById("details").innerText = `Humidity: ${data.current.humidity}% | Wind: ${data.current.wind_kph} kph`;
+
+        // Dynamic background + effects
+        const condition = data.current.condition.text.toLowerCase();
+        const effectContainer = document.getElementById("weatherEffect");
+
+        if (condition.includes("sun") || condition.includes("clear")) {
+          document.body.style.background = "linear-gradient(135deg, #fbc2eb, #a6c1ee)";
+          createEffect("sun", 20);
+        } else if (condition.includes("rain")) {
+          document.body.style.background = "linear-gradient(135deg, #89f7fe, #66a6ff)";
+          createEffect("rain", 60);
+        } else if (condition.includes("cloud")) {
+          document.body.style.background = "linear-gradient(135deg, #d7d2cc, #304352)";
+          effectContainer.innerHTML = "";
+        } else if (condition.includes("snow")) {
+          document.body.style.background = "linear-gradient(135deg, #e0eafc, #cfdef3)";
+          createEffect("snow", 40);
+        } else {
+          document.body.style.background = "linear-gradient(135deg, #74ebd5, #ACB6E5)";
+          effectContainer.innerHTML = "";
+        }
+
+        // Gamified badge
+        const badge = document.getElementById("badge");
+        if (data.current.temp_c > 30) {
+          badge.innerText = "🔥 Heat Warrior";
+        } else if (data.current.temp_c < 10) {
+          badge.innerText = "❄️ Cold Conqueror";
+        } else if (condition.includes("rain")) {
+          badge.innerText = "☔ Rain Rider";
+        } else if (condition.includes("snow")) {
+          badge.innerText = "⛄ Snow Survivor";
+        } else {
+          badge.innerText = "🏅 Weather Explorer";
+        }
+
+        document.getElementById("weatherCard").style.display = "block";
+      } catch (error) {
+        alert("Could not fetch weather: " + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
